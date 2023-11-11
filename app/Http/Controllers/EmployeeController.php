@@ -22,13 +22,13 @@ class EmployeeController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'         => 'required|alpha|max:50',
-            'last_names'   => 'required|alpha|max:50',
+            'name'         => 'required|string|max:50',
+            'last_names'   => 'required|string|max:50',
             'address'      => 'required|string',
             'phone'        => 'required|numeric',
-            'nif'          => 'required|alpha_num|max:10',
+            'nif'          => 'required|alpha_num|size:10',
             'date_birth'   => 'required|date',
-            'nationality'  => 'alpha',
+            'nationality'  => 'required|alpha',
             'salary'       => 'required|numeric',
             'sex'          => 'required|in:M,F',
             'is_qualified' => 'required|boolean',

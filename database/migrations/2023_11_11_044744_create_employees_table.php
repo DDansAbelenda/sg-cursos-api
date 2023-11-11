@@ -24,6 +24,9 @@ return new class extends Migration
             $table->enum('sex', ['M','F']);
             $table->boolean('is_qualified');
             $table->timestamps();
+            
+            //Constrains
+            $table->unique('nif');
         });
     }
 
