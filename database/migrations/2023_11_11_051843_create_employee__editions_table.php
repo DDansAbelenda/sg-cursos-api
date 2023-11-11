@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('employye__editions', function (Blueprint $table) {
+        Schema::create('employee__editions', function (Blueprint $table) {
             $table->bigInteger('edition_id');
             $table->bigInteger('course_id');
             $table->timestamps();
@@ -19,7 +19,7 @@ return new class extends Migration
             /*Constraints*/
             $table->foreign('edition_id')->references('id')->on('editions')->onDelete('cascade');
             $table->foreign('course_id')->references('id')->on('employees')->onDelete('cascade');
-            $table->unique(['edition_id','course_id']);
+            $table->primary(['edition_id','course_id']);
 
         });
     }
