@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Employee;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Request;
 
 class EmployeeController extends Controller
@@ -21,33 +22,30 @@ class EmployeeController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'name'         => 'required|string|max:50',
-            'last_names'   => 'required|string|max:50',
-            'address'      => 'required|string',
-            'phone'        => 'required|numeric',
-            'nif'          => 'required|alpha_num|size:10',
-            'date_birth'   => 'required|date',
-            'nationality'  => 'required|alpha',
-            'salary'       => 'required|numeric',
-            'sex'          => 'required|in:M,F',
-            'is_qualified' => 'required|boolean',
-        ]);
-
-        $employee = Employee::create([
-            'name'         => $request->name,
-            'last_names'   => $request->last_names,
-            'address'      => $request->address,
-            'phone'        => $request->phone,
-            'nif'          => $request->nif,
-            'date_birth'   => $request->date_birth,
-            'nationality'  => $request->nationality,
-            'salary'       => $request->salary,
-            'sex'          => $request->sex,
-            'is_qualified' => $request->is_qualified,
-        ]);
-
-        return $employee;
+        $validated=$request->validate([
+            'name'         =>'required|string|max:50',
+            'last_names'   =>'required|string|max:50',
+            'address'      =>'required|string',
+            'phone'        =>'required|numeric',
+            'nif'          =>'required|alpha_num|size:10',
+            'date_birth'   =>'required|date',
+            'nationality'  =>'required|alpha',
+            'salary'       =>'required|numeric',
+            'sex'          =>'required|in:M,F',
+            'is_qualified' =>'required|boolean',
+        ]);     
+        
+        
+        try{
+            $employee = Employee::create($validated);
+            return $employee;
+        }
+        catch(UniqueConstraintViolationException $exception){
+            return response()->json([
+                'message'=> 'Ya existe un empleado con ese NIF',
+            ]);
+        }
+        
     }
 
     /**
@@ -63,31 +61,20 @@ class EmployeeController extends Controller
      */
     public function update(Request $request, Employee $employee)
     {
-        $request->validate([
-            'name'         => 'required|alpha|max:50',
-            'last_names'   => 'required|alpha|max:50',
-            'address'      => 'required|string',
-            'phone'        => 'required|numeric',
-            'nif'          => 'required|alpha_num|max:10',
-            'date_birth'   => 'required|date',
-            'nationality'  => 'alpha',
-            'salary'       => 'required|numeric',
-            'sex'          => 'required|in:M,F',
-            'is_qualified' => 'required|boolean',
+        $validated=$request->validate([
+            'name'         =>'required|string|max:50',
+            'last_names'   =>'required|string|max:50',
+            'address'      =>'required|string',
+            'phone'        =>'required|numeric',
+            'nif'          =>'required|alpha_num|size:10',
+            'date_birth'   =>'required|date',
+            'nationality'  =>'required|alpha',
+            'salary'       =>'required|numeric',
+            'sex'          =>'required|in:M,F',
+            'is_qualified' =>'required|boolean',
         ]);
 
-        $employee->update([
-            'name'         => $request->name,
-            'last_names'   => $request->last_names,
-            'address'      => $request->address,
-            'phone'        => $request->phone,
-            'nif'          => $request->nif,
-            'date_birth'   => $request->date_birth,
-            'nationality'  => $request->nationality,
-            'salary'       => $request->salary,
-            'sex'          => $request->sex,
-            'is_qualified' => $request->is_qualified,
-        ]);
+        $employee->update($validated);
 
         //Preparar mensaje
         $message = "Actualizado con éxito";
