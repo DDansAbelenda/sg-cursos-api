@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('last_names');
             $table->string('address');
             $table->string('phone');
-            $table->string('NIF');
+            $table->string('nif');
             $table->string('date_birth');
             $table->string('nationality');
             $table->double('salary');
