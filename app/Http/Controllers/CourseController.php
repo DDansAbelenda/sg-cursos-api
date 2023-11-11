@@ -12,23 +12,32 @@ class CourseController extends Controller
      */
     public function index()
     {
-        //
+        $courses = Course::all();
+        return response()->json($courses);
+ 
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name'         => 'required|string|max:50',
+            'description'  => 'required|string|max:255',
+            'number_hours' => 'required|integer',
+            'cost'         => 'required|numeric',
+        ]);
+
+        $course = Course::create([
+            'name'         => $request->name,
+            'description'  => $request->description,
+            'number_hours' => $request->number_hours,
+            'cost'         => $request->cost,
+        ]);
+
+        return $course;
     }
 
     /**
@@ -36,15 +45,7 @@ class CourseController extends Controller
      */
     public function show(Course $course)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Course $course)
-    {
-        //
+        return $course;
     }
 
     /**
@@ -52,7 +53,25 @@ class CourseController extends Controller
      */
     public function update(Request $request, Course $course)
     {
-        //
+        $request->validate([
+            'name'         => 'required|string|max:50',
+            'description'  => 'required|string|max:255',
+            'number_hours' => 'required|integer',
+            'cost'         => 'required|numeric',
+        ]);
+
+        $course->update([
+            'name'         => $request->name,
+            'description'  => $request->description,
+            'number_hours' => $request->number_hours,
+            'cost'         => $request->cost,
+        ]);
+
+        //Preparar mensaje
+        $message = "Actualizado con éxito";
+        
+        return response()->json(["message"=> $message , 
+                                 "course" => $course ]);
     }
 
     /**
@@ -60,6 +79,8 @@ class CourseController extends Controller
      */
     public function destroy(Course $course)
     {
-        //
+        $course->delete();
+        return response()->json(["message"=> "Eliminado con éxito",
+                                 "course" => $course]);
     }
 }
