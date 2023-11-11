@@ -13,8 +13,20 @@ return new class extends Migration
     {
         Schema::create('editions', function (Blueprint $table) {
             $table->id();
+            $table->string('code_id');
+            $table->bigInteger('course_id');
+            $table->bigInteger('employee_id');
+            $table->string('place');
+            $table->enum('session_period',['F','M','A']); // fulltime(F), morning(M) and afternon(A)
+            $table->date('date');
             $table->timestamps();
-        });
+   
+            /*Constraints*/
+            $table->foreign('course_id')->references('id')->on('courses')->onDelete('cascade');
+            $table->foreign('employee_id')->references('id')->on('employees');
+            $table->unique(['code_id','course_id'], 'empoyee_id');
+
+     });
     }
 
     /**
