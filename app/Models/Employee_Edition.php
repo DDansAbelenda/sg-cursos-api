@@ -2,21 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
-class Employee_Edition extends Model
+class Employee_Edition extends Pivot
 {
-    use HasFactory;
-    protected $fillable = ['edition_id', 'course_id'];
+    protected $table = "employee__editions";
+    protected $fillable = ['edition_id', 'employee_id'];
 
-    public function employees()
-    {
-        $this->belongsTo(Employee::class);
-    }
-    
-    public function editions()
-    {
-        $this->belongsTo(Edition::class);
-    }
 }

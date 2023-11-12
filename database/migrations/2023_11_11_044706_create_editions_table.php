@@ -24,7 +24,8 @@ return new class extends Migration
             /*Constraints*/
             $table->foreign('course_id')->references('id')->on('courses')->onDelete('cascade');
             $table->foreign('employee_id')->references('id')->on('employees');
-            $table->unique(['code_id','course_id'], 'empoyee_id');
+            $table->unique(['code_id','course_id']);
+            $table->unique(['course_id', 'date']);
 
      });
     }

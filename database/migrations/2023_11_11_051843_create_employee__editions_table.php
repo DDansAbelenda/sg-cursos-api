@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('employee__editions', function (Blueprint $table) {
             $table->bigInteger('edition_id');
-            $table->bigInteger('course_id');
+            $table->bigInteger('employee_id');
             $table->timestamps();
 
             /*Constraints*/
             $table->foreign('edition_id')->references('id')->on('editions')->onDelete('cascade');
-            $table->foreign('course_id')->references('id')->on('employees')->onDelete('cascade');
-            $table->primary(['edition_id','course_id']);
+            $table->foreign('employee_id')->references('id')->on('employees')->onDelete('cascade');
+            $table->primary(['edition_id','employee_id']);
 
         });
     }

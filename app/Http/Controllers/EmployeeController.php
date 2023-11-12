@@ -22,30 +22,14 @@ class EmployeeController extends Controller
      */
     public function store(Request $request)
     {
-        $validated=$request->validate([
-            'name'         =>'required|string|max:50',
-            'last_names'   =>'required|string|max:50',
-            'address'      =>'required|string',
-            'phone'        =>'required|numeric',
-            'nif'          =>'required|alpha_num|size:10',
-            'date_birth'   =>'required|date',
-            'nationality'  =>'required|alpha',
-            'salary'       =>'required|numeric',
-            'sex'          =>'required|in:M,F',
-            'is_qualified' =>'required|boolean',
-        ]);     
-        
-        
-        try{
-            $employee = Employee::create($validated);
+        try {
+            $employee = Employee::create($this->validate_employee($request));
             return $employee;
-        }
-        catch(UniqueConstraintViolationException $exception){
+        } catch (UniqueConstraintViolationException $exception) {
             return response()->json([
-                'message'=> 'Ya existe un empleado con ese NIF',
+                'message' => 'Ya existe un empleado con ese NIF',
             ]);
         }
-        
     }
 
     /**
@@ -61,27 +45,19 @@ class EmployeeController extends Controller
      */
     public function update(Request $request, Employee $employee)
     {
-        $validated=$request->validate([
-            'name'         =>'required|string|max:50',
-            'last_names'   =>'required|string|max:50',
-            'address'      =>'required|string',
-            'phone'        =>'required|numeric',
-            'nif'          =>'required|alpha_num|size:10',
-            'date_birth'   =>'required|date',
-            'nationality'  =>'required|alpha',
-            'salary'       =>'required|numeric',
-            'sex'          =>'required|in:M,F',
-            'is_qualified' =>'required|boolean',
-        ]);
-
-        $employee->update($validated);
-
-        //Preparar mensaje
-        $message = "Actualizado con éxito";
-        
-        return response()->json(["message"=> $message , 
-                                 "employee" => $employee ]);
-        
+        try {
+            $employee->update($this->validate_employee($request));
+            //Preparar mensaje
+            $message = "Actualizado con éxito";
+            return response()->json([
+                "message" => $message,
+                "employee" => $employee
+            ]);
+        } catch (UniqueConstraintViolationException $exception) {
+            return response()->json([
+                'message' => 'Ya existe un empleado con ese NIF',
+            ]);
+        }
     }
 
     /**
@@ -90,8 +66,26 @@ class EmployeeController extends Controller
     public function destroy(Employee $employee)
     {
         $employee->delete();
-        return response()->json(["message"=> "Eliminado con éxito",
-                                 "employee" => $employee]);
-    
+        return response()->json([
+            "message" => "Eliminado con éxito",
+            "employee" => $employee
+        ]);
+    }
+
+    private function validate_employee(Request $request)
+    {
+        $validated = $request->validate([
+            'name'         => 'required|string|max:50',
+            'last_names'   => 'required|string|max:50',
+            'address'      => 'required|string',
+            'phone'        => 'required|numeric',
+            'nif'          => 'required|alpha_num|size:10',
+            'date_birth'   => 'required|date',
+            'nationality'  => 'required|alpha',
+            'salary'       => 'required|numeric',
+            'sex'          => 'required|in:M,F',
+            'is_qualified' => 'required|boolean',
+        ]);
+        return $validated;
     }
 }

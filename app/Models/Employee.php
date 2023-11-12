@@ -26,7 +26,7 @@ class Employee extends Model
         return $this->hasMany(Edition::class);
     }
     
-    public function employee_editions(){
-        return $this->hasMany(Employee_Edition::class);
+    public function edition_students(){
+        return $this->belongsToMany(Edition::class,'employee__editions');
     }
 }
