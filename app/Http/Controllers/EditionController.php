@@ -2,106 +2,148 @@
 
 namespace App\Http\Controllers;
 
-use App\Exceptions\CourseEditionSameDate;
-use App\Exceptions\CourseNotExist;
-use App\Exceptions\EmployeeNotExist;
-use App\Exceptions\EmployeeNotQualified;
-use App\Exceptions\EmployeeTeacherNotStudent;
-use App\Exceptions\StudentNotExist;
 use App\Models\Course;
 use App\Models\Edition;
 use App\Models\Employee;
+use App\Exceptions\EditionExceptions;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Database\QueryException;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class EditionController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        $editions = Edition::all();
-        return response()->json($editions);
+        $editions_json = [];
+        $editions = Edition::orderBy('id')->get();
+        foreach ($editions as $edition) {
+            $edition_json = $this->json_edition($edition);
+            $editions_json[] = $edition_json;
+        }
+        return response()->json($editions_json);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    private function json_edition($edition)
+    {
+        return array(
+            'id'             => $edition->id,
+            'code_id'        => $edition->code_id,
+            'course'         => $edition->course,
+            'employee'       => $edition->employee,
+            'place'          => $edition->place,
+            'session_period' => $edition->session_period,
+            'date'           => Carbon::createFromFormat('Y-m-d', $edition->date)->format('d/m/Y'),
+            'students'       => $edition->employee_editions,
+        );
+    }
+    
     public function store(Request $request)
     {
         try {
             $validated = $this->validate_edition($request);
+            
             $edition = Edition::create($validated);
-            $employees = array();
-            foreach ($request->students as $student) {
-                $employees[] = $employee = Employee::find($student);
-                $edition->employee_editions()->attach($employee);
-            }
+
+            //El método attach pone nuevas tuplas en la tabla sin afectar  eliminar relaciones anteriores
+            $edition->employee_editions()->attach($request->students);
+
+            //Se vuelve a cargar el objeto edition para tomar el formato de fecha de la base datos
+            //Y que no existan problemas al momento de crear el json en json_edition
+            $edition = Edition::find($edition->id);
+
+            //Se envia el json
             return response()->json([
-                'edition' => $edition,
-                'employees' => $employees,
+                'message' => 'Curso creado con éxito',
+                'edition' => $this->json_edition($edition),
             ]);
         } catch (UniqueConstraintViolationException $exception) {
             return response()->json([
-                'message' => 'El curso seleccionado ya tiene otra edición con el mismo código o fecha o ambos',
-            ]);
+                'errors' => 'El curso seleccionado ya tiene otra edición con el mismo código o fecha o ambos',
+            ], 422);
         } catch (QueryException $exception) {
             return response()->json([
-                'message' => 'El profesor o el curso seleccionados no existe',
-            ]);
-        } catch (EmployeeNotExist $ex) {
-            return response()->json(['message' => 'El empleado seleccionado no existe']);
-        } catch (EmployeeNotQualified $ex) {
-            return response()->json(['message' => 'El empleado seleccionado no está calificado para dar clases']);
-        } catch (CourseNotExist $ex) {
-            return response()->json(['message' => 'El curso seleccionado no existe']);
-        } catch (StudentNotExist $ex) {
-            return response()->json(['message' => 'Hay estudiantes seleccionados que no existen']);
-        } catch (EmployeeTeacherNotStudent $ex) {
-            return response()->json(['message' => 'El profesor seleccionado no puede pertenecer al grupo de estudiantes']);
+                'errors' => 'El profesor o el curso seleccionados no existe',
+            ], 422);
+        } catch (EditionExceptions $ex) {
+            return response()->json(['errors' => $ex->getMessage()], 422);
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Edition $edition)
     {
-        //
+        return $edition;
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Edition $edition)
     {
-        //
+        try {
+            $edition->update($this->validate_edition($request));
+            $edition->employee_editions()->sync($request->students);
+            //Se vuelve a cargar el objeto edition para tomar el formato de fecha de la base datos
+            //Y que no existan problemas al momento de crear el json en json_edition
+            $edition = Edition::find($edition->id);
+            return response()->json([
+                'message' => 'Actualizado con éxito',
+                'edition' => $this->json_edition($edition),
+            ]);
+        } catch (UniqueConstraintViolationException $exception) {
+            return response()->json([
+                'errors' => 'El curso seleccionado ya tiene otra edición con el mismo código o fecha o ambos',
+            ], 422);
+        } catch (QueryException $exception) {
+            return response()->json([
+                'errors' => 'El profesor o el curso seleccionados no existe',
+            ], 422);
+        } catch (EditionExceptions $ex) {
+            return response()->json(['errors' => $ex->getMessage()], 422);
+        }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Edition $edition)
     {
-        //
+        $edition->delete();
+        return response()->json([
+            "message" => "Eliminado con éxito",
+        ]);
     }
 
     private function validate_edition(Request $request)
     {
         //Validación general
-        $validated = $request->validate([
+        //Se crean las reglas del validador
+        $rules = ([
             'code_id'        => 'required|numeric',
             'course_id'      => 'required|numeric',
             'employee_id'    => 'required|numeric',
             'place'          => 'required|string',
-            'session_period' => 'required|in:F,M,A',
+            'session_period' => 'required|in:Tiempo Completo,Mañana,Tarde',
             'date'           => 'required|date',
         ]);
-
+        //Se crean los mensajes de respuesta ante cualquier problema de validación
+        $messages = [
+            'code_id.required'        => 'El código de la edición es requerido',
+            'code_id.numeric'         => 'El código de la edición solo puede tener números',
+            'course_id.required'      => 'El identificador de la edición es requerido',
+            'course_id.numeric'       => 'El identificador de la edición solo puede tener números',
+            'employee_id.required'    => 'El identificador del empleado es requerido',
+            'employee_id.numeric'     => 'El identificador del empleado solo puede tener números',
+            'place.required'          => 'El lugar es un campo requerido',
+            'place.string'            => 'El lugar debe ser una cadena de texto',
+            'session_period.required' => 'La sesión es un campo requerido',
+            'session_period.in'       => 'La sesión solo puede tomar los valores de tiempo completo, mañana o tarde',
+            'date.required'           => 'La fecha es un campo requerido',
+            'date.date'               => 'La fecha debe ser un formato de fecha válido',
+        ];
+        //Se crea el validador pasándole la entrada de la request, las reglas y los mensajes
+        $validator = Validator::make($request->all(), $rules, $messages);
+        if ($validator->fails()) {
+            throw new EditionExceptions($validator->errors()->first());
+        }
         $this->specific_validation($request);
 
+        $validated = $request->validate($rules);
         return $validated;
     }
 
@@ -110,28 +152,34 @@ class EditionController extends Controller
         //Validar que el empleado seleccionado exista
         $employee = Employee::find($request->employee_id);
         if ($employee == null) {
-            throw new EmployeeNotExist();
+            throw new EditionExceptions('El empleado seleccionado no existe');
         }
         //Validar que el empleado esté calificado
         if (!$employee->is_qualified) {
-            throw new EmployeeNotQualified();
+            throw new EditionExceptions('El empleado seleccionado no está calificado para dar clases');
         }
         //Validar que el curso seleccionado exista
         $course = Course::find($request->course_id);
         if ($course == null) {
-            throw new CourseNotExist();
+            throw new EditionExceptions('El curso seleccionado no existe');
         }
         //Validar que los estudiantes de la edición existan
         foreach ($request->students as $student) {
             if (!Employee::all()->contains('id', $student)) {
-                throw new StudentNotExist();
+                throw new EditionExceptions('Hay estudiantes seleccionados que no existen');
             }
         }
         //Validar que el empleado seleccionado como profesor no sea estudiante también
         foreach ($request->students as $student) {
             if ($student === $employee->id) {
-                throw new EmployeeTeacherNotStudent();
+                throw new EditionExceptions('El profesor seleccionado no puede pertenecer al grupo de estudiantes');
             }
         }
+    }
+
+    //Obtener los trabajadores que sean calificados
+    public function get_qualified_employee()
+    {
+        return Employee::where('is_qualified', true)->get();
     }
 }

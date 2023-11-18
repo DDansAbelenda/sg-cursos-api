@@ -21,6 +21,10 @@ class Employee extends Model
         'is_qualified'
     ];
 
+    protected $casts = [
+        'date_birth' => 'datetime:d/m/Y',
+    ];
+
     public function editions()
     {
         return $this->hasMany(Edition::class);

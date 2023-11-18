@@ -17,7 +17,7 @@ return new class extends Migration
             $table->bigInteger('course_id');
             $table->bigInteger('employee_id');
             $table->string('place');
-            $table->enum('session_period',['F','M','A']); // fulltime(F), morning(M) and afternon(A)
+            $table->enum('session_period',['Tiempo Completo','Mañana','Tarde']); // fulltime(F), morning(M) and afternon(A)
             $table->date('date');
             $table->timestamps();
    

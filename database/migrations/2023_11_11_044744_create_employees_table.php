@@ -18,10 +18,10 @@ return new class extends Migration
             $table->string('address');
             $table->string('phone');
             $table->char('nif',10);
-            $table->string('date_birth');
+            $table->date('date_birth');
             $table->string('nationality');
             $table->double('salary');
-            $table->enum('sex', ['M','F']);
+            $table->enum('sex', ['Masculino','Femenino']);
             $table->boolean('is_qualified');
             $table->timestamps();
             
