@@ -25,12 +25,13 @@ class Employee extends Model
         'date_birth' => 'datetime:d/m/Y',
     ];
 
+    //Ediciones en las que da clase
     public function editions()
     {
         return $this->hasMany(Edition::class);
     }
-    
-    public function edition_students(){
+    //Ediciones en las que estudia
+    public function edition_study(){
         return $this->belongsToMany(Edition::class,'employee__editions');
     }
 }

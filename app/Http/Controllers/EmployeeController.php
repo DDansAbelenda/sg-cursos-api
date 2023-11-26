@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Course;
+use App\Models\Edition;
 use App\Models\Employee;
 use Illuminate\Database\QueryException;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\Validator;
 use App\Exceptions\EmployeeException;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class EmployeeController extends Controller
 {
@@ -47,6 +50,55 @@ class EmployeeController extends Controller
     public function show(Employee $employee)
     {
         return $employee;
+    }
+
+    public function employee_get_all(Employee $employee)
+    {   //Obteniendo los cursos
+
+        $courses_teach = $this->get_courses_teach($employee);
+        $courses_study  = $this->get_courses_study($employee);
+        return response()->json([
+            'study_in'   => $courses_study,
+            'teach_in'   => $courses_teach,
+        ]);
+    }
+
+
+
+    //Obtener todos los cursos donde el empleado da clases
+    private function get_courses_teach(Employee $employee)
+    {
+        // Utiliza pluck para obtener los IDs de todas las ediciones del profesor
+        $editionIds = $employee->editions()->pluck('id');
+
+        // Utilizar pluck para obtener los IDs de todos los cursos asociados a esas ediciones
+        $courseIds = Edition::whereIn('id', $editionIds)->pluck('course_id');
+
+        // Utilizar unique para obtener IDs de cursos únicos
+        $uniqueCourseIds = $courseIds->unique();
+
+        // Obtén los modelos de cursos correspondientes a los IDs únicos
+        $courses = Course::whereIn('id', $uniqueCourseIds)->get();
+
+        return $courses;
+    }
+
+    //Obtener todos los cursos donde el empleado recibe clases
+    private function get_courses_study(Employee $employee)
+    {
+        // Utiliza pluck para obtener los IDs de todas las ediciones del profesor
+        $editionIds = $employee->edition_study()->pluck('id');
+
+        // Utilizar pluck para obtener los IDs de todos los cursos asociados a esas ediciones
+        $courseIds = Edition::whereIn('id', $editionIds)->pluck('course_id');
+
+        // Utilizar unique para obtener IDs de cursos únicos
+        $uniqueCourseIds = $courseIds->unique();
+
+        // Obtén los modelos de cursos correspondientes a los IDs únicos
+        $courses = Course::whereIn('id', $uniqueCourseIds)->get();
+
+        return $courses;
     }
 
     /**
@@ -137,6 +189,13 @@ class EmployeeController extends Controller
             'is_qualified.boolean' => 'El campo ¿Es calificado? es de tipo boolean',
 
         ];
+        //Validar que la fecha de nacimiento del empleado tenga un mínimo de 18 años antes de la actual
+        $dateBirth = Carbon::parse($request->date_birth);
+        $minAge = Carbon::now()->subYears(18);
+
+        if ($dateBirth->greaterThanOrEqualTo($minAge)) {
+            throw new EmployeeException('La fecha de nacimiento debe ser al menos 18 años antes de la fecha actual.');
+        }
 
         //Se crea el validador pasándole la entrada de la request, las reglas y los mensajes
         $validator = Validator::make($request->all(), $rules, $messages);
