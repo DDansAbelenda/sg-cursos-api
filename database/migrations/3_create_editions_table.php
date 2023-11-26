@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('editions', function (Blueprint $table) {
             $table->id();
             $table->string('code_id');
-            $table->bigInteger('course_id');
-            $table->bigInteger('employee_id');
+            $table->unsignedBigInteger('course_id');
+            $table->unsignedBigInteger('employee_id');
             $table->string('place');
             $table->enum('session_period',['Tiempo Completo','Mañana','Tarde']); // fulltime(F), morning(M) and afternon(A)
             $table->date('date');

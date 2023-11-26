@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('employee__editions', function (Blueprint $table) {
-            $table->bigInteger('edition_id');
-            $table->bigInteger('employee_id');
+            $table->unsignedBigInteger('edition_id');
+            $table->unsignedBigInteger('employee_id');
             $table->timestamps();
 
             /*Constraints*/
