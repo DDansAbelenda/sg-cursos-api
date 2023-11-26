@@ -67,18 +67,13 @@ class EmployeeController extends Controller
 
     //Obtener todos los cursos donde el empleado da clases
     private function get_courses_teach(Employee $employee)
-    {
-        // Utiliza pluck para obtener los IDs de todas las ediciones del profesor
-        $editionIds = $employee->editions()->pluck('id');
-
-        // Utilizar pluck para obtener los IDs de todos los cursos asociados a esas ediciones
-        $courseIds = Edition::whereIn('id', $editionIds)->pluck('course_id');
-
-        // Utilizar unique para obtener IDs de cursos únicos
-        $uniqueCourseIds = $courseIds->unique();
-
-        // Obtén los modelos de cursos correspondientes a los IDs únicos
-        $courses = Course::whereIn('id', $uniqueCourseIds)->get();
+    {   // Realiza un join para obtener los modelos de cursos directamente
+        $courses = Course::join('editions', 'courses.id', '=', 'editions.course_id')
+            ->join('employees', 'editions.employee_id', '=', 'employees.id')
+            ->where('employees.id', $employee->id)
+            ->select('courses.*')
+            ->distinct()
+            ->get();
 
         return $courses;
     }
@@ -86,18 +81,11 @@ class EmployeeController extends Controller
     //Obtener todos los cursos donde el empleado recibe clases
     private function get_courses_study(Employee $employee)
     {
-        // Utiliza pluck para obtener los IDs de todas las ediciones del profesor
-        $editionIds = $employee->edition_study()->pluck('id');
-
-        // Utilizar pluck para obtener los IDs de todos los cursos asociados a esas ediciones
-        $courseIds = Edition::whereIn('id', $editionIds)->pluck('course_id');
-
-        // Utilizar unique para obtener IDs de cursos únicos
-        $uniqueCourseIds = $courseIds->unique();
-
-        // Obtén los modelos de cursos correspondientes a los IDs únicos
-        $courses = Course::whereIn('id', $uniqueCourseIds)->get();
-
+        $courses = $employee->edition_study()
+            ->join('courses', 'editions.course_id', '=', 'courses.id')
+            ->select('courses.*')
+            ->distinct()
+            ->get();
         return $courses;
     }
 
