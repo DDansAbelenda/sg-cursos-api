@@ -126,6 +126,7 @@ class EmployeeController extends Controller
         }
     }
 
+
     public function isProfessor(Employee $employee)
     {
         return response()->json([
@@ -138,8 +139,8 @@ class EmployeeController extends Controller
             'name'         => 'required|string|max:50',
             'last_names'   => 'required|string|max:50',
             'address'      => 'required|string',
-            'phone'        => 'required|string|regex:/^[1-9][0-9]*$/|size:8',
-            'nif'          => 'required|alpha_num|size:10',
+            'phone'        => 'required|regex:/^[1-9][0-9]*$/|size:8',
+            'nif'          => 'required|regex:/^[0-9]+$/|size:10',
             'date_birth'   => 'required|date',
             'nationality'  => 'required|alpha',
             'salary'       => 'required|numeric|min:1',
@@ -157,19 +158,18 @@ class EmployeeController extends Controller
             'address.required'     => 'La dirección es un campo requerido',
             'address.string'       => 'La dirección debe ser una cadena de texto',
             'phone.required'       => 'El teléfono es un campo requerido',
-            'phone.string'         => 'El teléfono no debe exceder los 255 caracteres',
             'phone.size'           => 'El teléfono debe tener 8 números',
             'phone.regex'          => 'El teléfono debe contener solo números',
             'nif.required'         => 'El NIF es un campo requerido',
-            'nif.alpha_num'        => 'El NIF es una cadena alfanumérica sin espacios en blanco',
-            'nif.size'             => 'El NIF es debe contener exáctamente 10 caractéres',
+            'nif.regex'            => 'El NIF debe contener solo números',
+            'nif.size'             => 'El NIF debe contener exáctamente 10 caractéres',
             'date_birth.required'  => 'La fecha de nacimiento es un campo requerido',
             'date_birth.date'      => 'La fecha debe ser un formato de fecha válido',
             'nationality.required' => 'La nacionalidad es un campo requerido',
             'nationality.alpha'    => 'La nacionalidad debe contener letras solamente y sin espacios',
             'salary.required'      => 'El salario es un campo requerido',
             'salary.numeric'       => 'El salario debe contener solamente números',
-            'salary.min'       => 'El salario debe ser positivo',
+            'salary.min'           => 'El salario debe ser positivo',
             'sex.required'         => 'El sexo es un campo requerido',
             'sex.in'               => 'El sexo solo puede tomar los valores: Masculino(M) y Femenino(F)',
             'is_qualified.required' => 'Es campo ¿Es calificado? es requerido',

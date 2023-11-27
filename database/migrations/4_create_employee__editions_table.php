@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('employee__editions', function (Blueprint $table) {
             $table->unsignedBigInteger('edition_id');
             $table->unsignedBigInteger('employee_id');
-            $table->timestamps();
 
             /*Constraints*/
             $table->foreign('edition_id')->references('id')->on('editions')->onDelete('cascade');
