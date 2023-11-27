@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Course;
-use App\Models\Edition;
 use App\Models\Employee;
 use Illuminate\Database\QueryException;
 use Illuminate\Database\UniqueConstraintViolationException;
@@ -67,13 +66,11 @@ class EmployeeController extends Controller
 
     //Obtener todos los cursos donde el empleado da clases
     private function get_courses_teach(Employee $employee)
-    {   // Realiza un join para obtener los modelos de cursos directamente
-        $courses = Course::join('editions', 'courses.id', '=', 'editions.course_id')
-            ->join('employees', 'editions.employee_id', '=', 'employees.id')
-            ->where('employees.id', $employee->id)
-            ->select('courses.*')
-            ->distinct()
-            ->get();
+    {   // Utiliza pluck para obtener los IDs de todas los cursos del profesor
+        $courseIds = $employee->editions()->pluck('course_id')->unique();
+
+        // Obtén los modelos de cursos correspondientes a los IDs únicos
+        $courses = Course::whereIn('id', $courseIds)->get();
 
         return $courses;
     }
@@ -81,11 +78,12 @@ class EmployeeController extends Controller
     //Obtener todos los cursos donde el empleado recibe clases
     private function get_courses_study(Employee $employee)
     {
-        $courses = $employee->edition_study()
-            ->join('courses', 'editions.course_id', '=', 'courses.id')
-            ->select('courses.*')
-            ->distinct()
-            ->get();
+        // Utiliza pluck para obtener los IDs de todas los cursos del profesor
+        $courseIds = $employee->edition_study()->pluck('course_id')->unique();
+
+        // Obtén los modelos de cursos correspondientes a los IDs únicos
+        $courses = Course::whereIn('id', $courseIds)->get();
+
         return $courses;
     }
 
@@ -136,18 +134,18 @@ class EmployeeController extends Controller
     }
     private function validate_employee(Request $request)
     {
-        $rules = ([
+        $rules = [
             'name'         => 'required|string|max:50',
             'last_names'   => 'required|string|max:50',
             'address'      => 'required|string',
-            'phone'        => 'required|string|regex:/^[1-9][0-9]*$/',
+            'phone'        => 'required|string|regex:/^[1-9][0-9]*$/|size:8',
             'nif'          => 'required|alpha_num|size:10',
             'date_birth'   => 'required|date',
             'nationality'  => 'required|alpha',
             'salary'       => 'required|numeric|min:1',
             'sex'          => 'required|in:Masculino,Femenino',
             'is_qualified' => 'required|boolean',
-        ]);
+        ];
 
         $messages = [
             'name.required'        => 'El nombre es un campo requerido',
@@ -160,6 +158,7 @@ class EmployeeController extends Controller
             'address.string'       => 'La dirección debe ser una cadena de texto',
             'phone.required'       => 'El teléfono es un campo requerido',
             'phone.string'         => 'El teléfono no debe exceder los 255 caracteres',
+            'phone.size'           => 'El teléfono debe tener 8 números',
             'phone.regex'          => 'El teléfono debe contener solo números',
             'nif.required'         => 'El NIF es un campo requerido',
             'nif.alpha_num'        => 'El NIF es una cadena alfanumérica sin espacios en blanco',
@@ -190,7 +189,12 @@ class EmployeeController extends Controller
         if ($validator->fails()) {
             throw new EmployeeException($validator->errors()->first());
         }
-        $validated = $request->validate($rules);
-        return $validated;
+        return $request->all();
+    }
+
+    //Obtener los trabajadores que sean calificados
+    public function get_qualified_employee()
+    {
+        return Employee::where('is_qualified', true)->get();
     }
 }

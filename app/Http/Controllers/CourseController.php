@@ -52,10 +52,8 @@ class CourseController extends Controller
     {
         try {
             $course->update($this->validate_course($request));
-            //Preparar mensaje
-            $message = "Actualizado con éxito";
             return response()->json([
-                "message" => $message,
+                "message" => "Actualizado con éxito",
                 "course" => $course
             ]);
         } catch (CourseExceptions $exception) {
@@ -76,12 +74,12 @@ class CourseController extends Controller
 
     private function validate_course(Request $request)
     {
-        $rules = ([
+        $rules = [
             'name'         => 'required|string|max:50',
             'number_hours' => 'required|integer|min:1',
             'description'  => 'required|string',
-            'cost'         => 'required|numeric|min:1',
-        ]);
+            'cost'         => 'required|numeric|min:0',
+        ];
 
         $messages = [
             'name.required'         => 'El nombre es un campo requerido',
@@ -94,14 +92,13 @@ class CourseController extends Controller
             'number_hours.min'      => 'El número de horas debe ser positivo',
             'cost.required'         => 'El costo es un campo requerido',
             'cost.numeric'          => 'El costo debe ser un valor numérico',
-            'cost.min'              => 'El costo debe ser positivo',          
+            'cost.min'              => 'El costo es un número no negativo',          
         ];
         //Se crea el validador pasándole la entrada de la request, las reglas y los mensajes
         $validator = Validator::make($request->all(), $rules, $messages);
         if ($validator->fails()) {
             throw new CourseExceptions($validator->errors()->first());
         }
-        $validated = $request->validate($rules);
-        return $validated;
+        return $request->all();
     }
 }

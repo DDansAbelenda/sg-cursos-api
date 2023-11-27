@@ -23,7 +23,7 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 
 Route::apiResource('/course',CourseController::class);
 Route::apiResource('/employee', EmployeeController::class);
-Route::get('/isprofessor/{employee}', [EmployeeController::class, 'isProfessor' ])->name('is.professor');
 Route::apiResource('/edition', EditionController::class);
-Route::get('/professor', [EditionController::class, 'get_qualified_employee' ])->name('q.professor');
+Route::get('/isprofessor/{employee}', [EmployeeController::class, 'isProfessor' ]);
+Route::get('/professor', [EmployeeController::class, 'get_qualified_employee' ]);
 Route::get('/employeeall/{employee}', [EmployeeController::class, 'employee_get_all']);
