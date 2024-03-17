@@ -14,7 +14,7 @@ class AuthController extends Controller
     public function create(Request $request)
     {
         try {
-            $this->validate_user($request);
+            $this->validate_user($request, 0);
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
@@ -36,7 +36,7 @@ class AuthController extends Controller
     public function login(Request  $request)
     {
         try {
-            $this->validate_user($request);
+            $this->validate_user($request, 1);
             if (!Auth::attempt($request->only('email', 'password'))) {
                 return response()->json([
                     'status' => false,
@@ -67,28 +67,31 @@ class AuthController extends Controller
         ], 200);
     }
 
-    private function validate_user(Request $request)
+    private function validate_user(Request $request, int $op)
     {
-        $rules = [
-            'name' => 'required|string|max:100',
-            'email' => 'required|string|email|max:100|unique:users',
-            'password' => 'required|string|min:8'
-        ];
+        //op = 0 si es crear y login en otro caso
 
+        $rules = [
+            'email' => ['required', 'string', 'email', 'max:100'],
+            'password' => ['required', 'string', 'min:8']
+        ];
         $messages = [
-            'name.required' => 'El nombre de usuario es un campo requerido',
-            'name.max' => 'El nombre de usuario debe tener un máximo de 100 caracteres',
-            'email.required' => 'El correo de usuario es un campo requerido',
+            'email.required' => 'El correo es un campo requerido',
             'email.max' => 'El correo debe tener un máximo de 100 caracteres',
-            'email.unique' => 'Existe un usuario con ese correo',
             'email.email' => 'El correo debe ser una dirección válida',
             'password.required' => 'La contraseña es un campo requerido',
             'password.min' => 'La contraseña debe tener un mínimo de 8 caracteres'
         ];
-
+        if ($op == 0) {
+            $rules['name'] = ['required', 'string', 'max:100'];
+            $rules['email'][] = 'unique:users';
+            $messages['name.required'] = 'El nombre de usuario es un campo requerido';
+            $messages['name.max'] = 'El nombre de usuario debe tener un máximo de 100 caracters';
+            $messages['email.unique'] = "Este correo ya se encuentra registrado";
+        }
         $validator = Validator::make($request->input(), $rules, $messages);
         if ($validator->fails()) {
-            throw new AuthExceptions($validator->errors()->all());
+            throw new AuthExceptions($validator->errors()->first());
         }
     }
 }
