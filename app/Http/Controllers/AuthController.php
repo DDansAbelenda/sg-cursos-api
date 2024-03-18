@@ -11,6 +11,11 @@ use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
+    public function index()
+    {
+        $users = User::orderBy('id')->get();
+        return response()->json($users);
+    }
     public function create(Request $request)
     {
         try {
@@ -65,6 +70,14 @@ class AuthController extends Controller
             'status' => true,
             'message' => 'Usuario sale correctamente',
         ], 200);
+    }
+
+    public function destroy(User $user)
+    {
+        $user->delete();
+        return response()->json([
+            "message" => "Eliminado con éxito",
+        ]);
     }
 
     private function validate_user(Request $request, int $op)

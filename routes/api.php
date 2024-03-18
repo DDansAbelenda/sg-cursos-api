@@ -27,10 +27,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('/course', CourseController::class);
     Route::apiResource('/employee', EmployeeController::class);
     Route::apiResource('/edition', EditionController::class);
+    Route::apiResource('/user', AuthController::class);
     Route::get('/isprofessor/{employee}', [EmployeeController::class, 'isProfessor']);
     Route::get('/professor', [EmployeeController::class, 'get_qualified_employee']);
     Route::get('/employeeall/{employee}', [EmployeeController::class, 'employee_get_all']);
-    
     //Logout
     Route::get('auth/logout', [AuthController::class, 'logout']);
 });
