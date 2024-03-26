@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Rutas de autenticación
-Route::post('auth/register', [AuthController::class, 'create']);
+
 Route::post('auth/login', [AuthController::class, 'login']);
 
 //Mediador para proteger las rutas
@@ -31,6 +31,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/isprofessor/{employee}', [EmployeeController::class, 'isProfessor']);
     Route::get('/professor', [EmployeeController::class, 'get_qualified_employee']);
     Route::get('/employeeall/{employee}', [EmployeeController::class, 'employee_get_all']);
+    //Registrar usuario
+    Route::post('auth/register', [AuthController::class, 'create']);
     //Logout
     Route::get('auth/logout', [AuthController::class, 'logout']);
 });
