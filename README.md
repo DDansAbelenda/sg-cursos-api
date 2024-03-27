@@ -47,6 +47,7 @@ DB_PASSWORD=password
 ```
 php artisan migrate
 ```
+Esto por lo general abre un servicio en `http:localhost:8000` aunque debe verificar el que se muestra en consola
 
 7. Opcional: Si deseas poblar la base de datos con datos de prueba, ejecuta el seeder:
 
@@ -66,7 +67,7 @@ php artisan serve
 - Para iniciar sesión, haz una solicitud POST a `/auth/login` con las credenciales de inicio de sesión.
 
 ```
-POST /auth/login
+POST /api/auth/login
 {
     "email": "admin@example.com",
     "password": "password"
@@ -76,20 +77,20 @@ POST /auth/login
 - Para cerrar sesión, haz una solicitud GET a `/auth/logout`.
 
 ```
-GET /auth/logout
+GET /api/auth/logout
 ```
 
 ### CRUD
 
-- Cursos: CRUD completo disponible en `/course`.
-- Empleados: CRUD completo disponible en `/employee`.
-- Ediciones: CRUD completo disponible en `/edition`.
+- Cursos: CRUD completo disponible en `/api/course`.
+- Empleados: CRUD completo disponible en `/api/employee`.
+- Ediciones: CRUD completo disponible en `/api/edition`.
 
 ### Consultas
 
-- Determinar si un empleado es profesor: Envía una solicitud GET a `/isprofessor/{employee}`.
-- Obtener todos los empleados profesores: Envía una solicitud GET a `/professor`.
-- Obtener todos los cursos de un empleado: Envía una solicitud GET a `/employeeall/{employee}`.
+- Determinar si un empleado es profesor: Envía una solicitud GET a `/api/isprofessor/{employee}`.
+- Obtener todos los empleados profesores: Envía una solicitud GET a `/api/professor`.
+- Obtener todos los cursos de un empleado: Envía una solicitud GET a `/api/employeeall/{employee}`.
 
 ## Documentación
 
