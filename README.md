@@ -22,19 +22,7 @@ git clone https://github.com/DDansAbelenda/sg-cursos-api.git
 ```
 composer install
 ```
-
-3. Configura las variables de entorno creando un archivo `.env` a partir de una copia de `.env.example`. Asegúrate de configurar las siguientes variables de entorno al final del fichero:
-```
-SESSION_DRIVER=cookie
-SESSION_DOMAIN=localhost
-SANCTUM_STATEFUL_DOMAINS=localhost:8080
-``` 
-Además se debe sobreescribir la siguiente variable ubicada en la parte superior  para evitar errores:
-
-```
-APP_KEY=base64:PAjRyROTHQ9EX2xv2uIG7olDegJ1qmevcptNFadJq3I=
-```
-    
+3. Crear un archivo `.env` a partir de una copia de `.env.example`.
 
 4. Configurar las variables de entorno de la base datos, no hay ningún sistema gestor de base datos de preferencia, puede utilizar cualquiera de los disponibles. Ejemplo de una configuración para postgres sería:
 
@@ -60,8 +48,18 @@ Esto por lo general abre un servicio en `http:localhost:8000` aunque debe verifi
 ```
 php artisan db:seed --class=DatabaseSeeder
 ```
+8. Necesario para el trabajo con el front:  Configurar las siguientes variables de entorno al final del fichero:
+```
+SESSION_DRIVER=cookie
+SESSION_DOMAIN=localhost
+SANCTUM_STATEFUL_DOMAINS=localhost:8080
+``` 
+Además se debe sobreescribir la siguiente variable ubicada en la parte superior  para evitar errores:
 
-8. Para iniciar la aplicación utilizarl el comando:
+```
+APP_KEY=base64:PAjRyROTHQ9EX2xv2uIG7olDegJ1qmevcptNFadJq3I=
+```
+9. Para iniciar la aplicación utilizar el comando:
 
 ```
 php artisan serve
