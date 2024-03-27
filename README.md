@@ -30,14 +30,25 @@ SESSION_DRIVER=cookie
 SESSION_DOMAIN=localhost
 SANCTUM_STATEFUL_DOMAINS=localhost:8080
 ```
+4. Configurar las variables de entorno de la base datos, no hay ningún sistema gestor de base datos de preferencia, puede utilizar cualquiera de los disponibles. Ejemplo de una configuración para postgres sería:
 
-4. Ejecuta las migraciones para crear la estructura de la base de datos:
+```
+DB_CONNECTION=pgsql
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_DATABASE=sg_cursos_api
+DB_USERNAME=postgres
+DB_PASSWORD=password
+```
+5. Crear de forma manual la base de datos en el gestor seleccionado.
+
+6. Ejecuta las migraciones para crear la estructura de la base de datos:
 
 ```
 php artisan migrate
 ```
 
-5. Opcional: Si deseas poblar la base de datos con datos de prueba, ejecuta el seeder:
+7. Opcional: Si deseas poblar la base de datos con datos de prueba, ejecuta el seeder:
 
 ```
 php artisan db:seed --class=DatabaseSeeder
