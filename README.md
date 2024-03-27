@@ -29,12 +29,10 @@ SESSION_DRIVER=cookie
 SESSION_DOMAIN=localhost
 SANCTUM_STATEFUL_DOMAINS=localhost:8080
 ``` 
-Además se deben sobreescribir las variables ubicadas en la parte superior con los siguientes valores para evitar errores:
+Además se debe sobreescribir la siguiente variable ubicada en la parte superior  para evitar errores:
 
 ```
 APP_KEY=base64:PAjRyROTHQ9EX2xv2uIG7olDegJ1qmevcptNFadJq3I=
-APP_URL=http://localhost:8000
-FRONTEND_URL=http://localhost:8080
 ```
     
 
