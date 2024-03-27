@@ -97,10 +97,6 @@ GET /api/auth/logout
 - [Documentación de Laravel](https://laravel.com/docs)
 - [Documentación de Laravel Sanctum](https://laravel.com/docs/10.x/sanctum)
 
-## Capturas de pantalla
-
-(Inserta aquí algunas capturas de pantalla de la aplicación en funcionamiento, si están disponibles)
-
 ## Contribuciones
 
 ¡Las contribuciones son bienvenidas! Si deseas contribuir a este proyecto, por favor abre un problema o envía una solicitud de extracción.
