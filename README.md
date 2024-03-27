@@ -23,13 +23,21 @@ git clone https://github.com/DDansAbelenda/sg-cursos-api.git
 composer install
 ```
 
-3. Configura las variables de entorno creando un archivo `.env` basado en el archivo `.env.example`. Asegúrate de configurar las siguientes variables de entorno:
-
+3. Configura las variables de entorno creando un archivo `.env` a partir de una copia de `.env.example`. Asegúrate de configurar las siguientes variables de entorno al final del fichero:
 ```
 SESSION_DRIVER=cookie
 SESSION_DOMAIN=localhost
 SANCTUM_STATEFUL_DOMAINS=localhost:8080
+``` 
+Además se deben sobreescribir las variables ubicadas en la parte superior con los siguientes valores para evitar errores:
+
 ```
+APP_KEY=base64:PAjRyROTHQ9EX2xv2uIG7olDegJ1qmevcptNFadJq3I=
+APP_URL=http://localhost:8000
+FRONTEND_URL=http://localhost:8080
+```
+    
+
 4. Configurar las variables de entorno de la base datos, no hay ningún sistema gestor de base datos de preferencia, puede utilizar cualquiera de los disponibles. Ejemplo de una configuración para postgres sería:
 
 ```
